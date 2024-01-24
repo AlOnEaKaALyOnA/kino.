@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ movie.title }}</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+            background-color: #ccc;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .movie-detail {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .movie-poster {
+            position: relative; /* Позиционирование для overlay текста */
+        }
+
+        .movie-poster img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        .overlay-text {
+            position: absolute;
+            top: 10px;
+            left: 370px;
+            color: #fff;
+            float: left;
+        }
+
+        .movie-info p {
+            margin-bottom: 10px;
+        }
+
+        .movie-description {
+            margin-top: 20px;
+        }
+
+        .seat-map-button {
+            margin-top: 10px;
+            display: inline-block;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Кинотеатр</h1>
+
+    <div class="movie-detail">
+        <div class="movie-poster">
+            <img src="{{ movie.poster.url }}" alt="{{ movie.title }} Poster">
+            <div class="overlay-text">
+                <h2>{{ movie.title }}</h2>
+                <p>{{ movie.genre }}</p>
+            </div>
+        </div>
+
+        <a href="{{ seat_map_url }}" class="seat-map-button">Карта зала</a>
+
+        <div class="movie-info">
+            <p>Режиссёр: {{ movie.director }}</p>
+            <p>Длительность: {{ movie.duration }}</p>
+            <p>Дата выхода: {{ movie.release_date }}</p>
+            <p>В ролях: {{ movie.actors.all|join:", " }}</p>
+        </div>
+
+        <div class="movie-description">
+            <h2>Описание</h2>
+            <p>{{ movie.description }}</p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

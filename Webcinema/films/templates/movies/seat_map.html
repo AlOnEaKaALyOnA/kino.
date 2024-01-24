@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seat Map - {{ movie.title }}</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+            text-align: center;
+            background-color: #ccc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* Занимаем 100% высоты видимой области страницы */
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .seat-map-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: fit-content; /* Автоматически уменьшаем ширину до содержимого */
+        }
+
+        .seat-map {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+        }
+
+        .seat {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .row-number {
+            margin-right: 10px;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+            z-index: 1;
+            white-space: nowrap;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .seat:hover .tooltip {
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <div class="seat-map-container">
+    <h1>Мероприятие: {{ movie.title }}</h1>
+
+        <h2>Карта зала</h2>
+        <div class="seat-map">
+            {% for row in rows %}
+                <div class="row">
+                    <div class="row-number">{{ row|add:1 }}</div>
+                    {% for seat in seats %}
+                        <div class="seat" data-row="{{ row }}" data-seat="{{ seat }}">
+                            <div class="tooltip">{{ row|add:1 }}, {{ seat|add:1 }}</div>
+                        </div>
+                    {% endfor %}
+                    <div class="row-divider"></div>
+                    <div class="end-row-number">{{ row|add:1 }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const seats = document.querySelectorAll('.seat');
+
+        seats.forEach(function(seat) {
+            seat.addEventListener('mouseenter', function () {
+                const tooltip = seat.querySelector('.tooltip');
+                tooltip.style.visibility = 'visible';
+            });
+
+            seat.addEventListener('mouseleave', function () {
+                const tooltip = seat.querySelector('.tooltip');
+                tooltip.style.visibility = 'hidden';
+            });
+        });
+    });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
