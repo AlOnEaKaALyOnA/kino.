@@ -26,6 +26,20 @@
             color: white;
             text-decoration: none;
         }
+
+        .widget {
+            background-color: #555;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .site-header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -37,8 +51,16 @@
             </ul>
         </nav>
     </header>
+    <div class="widget">
+        <p>Афиша | Сеансы</p>
+    </div>
+    <div class="site-header">
+        <h1>Your Movie Theater</h1>
+    </div>
     <main>
         {% block content %}{% endblock %}
     </main>
 </body>
 </html>
+
+

@@ -22,7 +22,7 @@
         }
 
         .movie-poster {
-            position: relative; /* Позиционирование для overlay текста */
+            position: relative;
         }
 
         .movie-poster img {
@@ -56,10 +56,87 @@
             text-decoration: none;
             border-radius: 5px;
         }
+        .top-container {
+            background-color: #a6caf0;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .top-container img {
+         margin-left: 30px;
+     }
+
+     .contact-info {
+            font-size: 16px;
+            margin-left: 20px;
+        }
+
+    h1 {
+        margin: 0;
+    }
+
+    .button-container {
+        display: flex;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        text-decoration: none;
+        margin-left: 20px;
+        transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+        background-color: #0056b3;
+    }
+
+    .login-button {
+        background-color: yellow;
+        color: black;
+        border-radius: 20px;
+        padding: 10px 20px;
+        text-decoration: none;
+        margin-left: 1570px;
+        transition: background-color 0.3s ease;
+    }
+
+    .login-button:hover {
+        background-color: #e5e500;
+    }
     </style>
 </head>
 <body>
-    <h1>Кинотеатр</h1>
+    <div class="top-container">
+        <a href="{% url 'movie_list' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Кинотеатр Лого">
+        </a>
+         <div class="contact-info">
+            <p><strong>Новосибирск</strong></p>
+            <p>ул.Красный проспект 72</p>
+            <p>+7(999) 999-99-99</p>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <a href="{% url 'afisha' %}" class="button">Афиша</a>
+        <a href="{% url 'screenings' %}" class="button">Сеансы</a>
+        <a href="{% url 'login' %}" class="button login-button">Войти</a>
+    </div>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     <div class="movie-detail">
         <div class="movie-poster">

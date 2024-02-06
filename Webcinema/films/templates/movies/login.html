@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизация</title>
+<style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: linear-gradient(to top, #dfddff 0%, #b7f3ff 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .signup-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <label for="id_email">Email:</label>
+    <input type="email" name="email" id="id_email" required>
+
+    <label for="id_password">Пароль:</label>
+    <input type="password" name="password" id="id_password" required>
+
+    <button type="submit">Войти</button>
+</form>
+
+    <div class="signup-link">
+        У вас нет учетной записи? <a href="{% url 'register' %}">Зарегистрируйтесь здесь</a>.
+    </div>
+</body>
+</html>

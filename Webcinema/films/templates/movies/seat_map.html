@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Seat Map - {{ movie.title }}</title>
+    <title>Карта зала — {{ movie.title }}</title>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     <style>
@@ -14,7 +14,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh; /* Занимаем 100% высоты видимой области страницы */
+            height: 100vh;
         }
 
         h1 {
@@ -26,7 +26,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: fit-content; /* Автоматически уменьшаем ширину до содержимого */
+            width: fit-content;
         }
 
         .seat-map {
@@ -71,11 +71,50 @@
         .seat:hover .tooltip {
             visibility: visible;
         }
+         .reset-button {
+        background-color: #bbbbbb;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: background-color 0.3s;
+    }
+
+    .reset-button:hover {
+        background-color: #df2f26;
+    }
     </style>
 </head>
 <body>
-    <div class="seat-map-container">
+    <style>
+        .seat {
+            background-color: #99ff99; /* начальный цвет */
+            border: none;
+            cursor: pointer;
+            border-radius: 10px; /* закругления */
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .seat.selected {
+            background-color: #808080; /* измененный цвет */
+        }
+    </style>
+  <div class="seat-map-container">
     <h1>Мероприятие: {{ movie.title }}</h1>
+    {% if no_screening %}
+        <p>Извините, в ближайшее время показов этого фильма не будет.</p>
+    {% else %}
+        <h2></h2>
+        <p>Дата: {{ screening.start_time|date:"F j, Y" }}</p>
+        <p>Время: {{ screening.start_time|default:""|time:"H:i" }} {{ screening.start_time|default:""|time:"." }}</p>
 
         <h2>Карта зала</h2>
         <div class="seat-map">
@@ -83,8 +122,8 @@
                 <div class="row">
                     <div class="row-number">{{ row|add:1 }}</div>
                     {% for seat in seats %}
-                        <div class="seat" data-row="{{ row }}" data-seat="{{ seat }}">
-                            <div class="tooltip">{{ row|add:1 }}, {{ seat|add:1 }}</div>
+                        <div class="seat" data-row="{{ row|add:1 }}" data-seat="{{ seat|add:1 }}" data-price="{{ seat_price }}">
+                            <div class="tooltip">{{ row|add:1 }} ряд, {{ seat|add:1 }} место</div>
                         </div>
                     {% endfor %}
                     <div class="row-divider"></div>
@@ -92,24 +131,55 @@
                 </div>
             {% endfor %}
         </div>
-    </div>
-    <script>
+        <button id="reset-button" class="reset-button">Места не выбраны</button>
+    {% endif %}
+</div>
+<script>
     document.addEventListener('DOMContentLoaded', function () {
         const seats = document.querySelectorAll('.seat');
 
         seats.forEach(function(seat) {
             seat.addEventListener('mouseenter', function () {
-                const tooltip = seat.querySelector('.tooltip');
-                tooltip.style.visibility = 'visible';
+                const row = seat.dataset.row;
+                const seatNumber = seat.dataset.seat;
+                if (!seat.classList.contains('selected')) {
+                    seat.style.borderRadius = '50%';
+                    seat.style.backgroundColor = '#99ff99';
+                    seat.innerHTML = `<div class="tooltip">${row} ряд, ${seatNumber} место</div>`;
+                } else {
+                    seat.innerHTML = `<div class="tooltip">${row} ряд, ${seatNumber} место</div>`;
+                }
             });
 
             seat.addEventListener('mouseleave', function () {
-                const tooltip = seat.querySelector('.tooltip');
-                tooltip.style.visibility = 'hidden';
+                if (!seat.classList.contains('selected')) {
+                    const seatNumber = seat.dataset.seat;
+                    seat.style.borderRadius = '10px';
+                    seat.style.backgroundColor = '';
+                    seat.innerHTML = `<div class="tooltip">${seatNumber}</div>`;
+                }
+            });
+
+            seat.addEventListener('click', function () {
+                if (seat.classList.contains('selected')) {
+                    seat.classList.remove('selected');
+                    seat.style.border = 'none';
+                    seat.style.backgroundColor = '';
+                    const seatNumber = seat.dataset.seat;
+                    seat.innerHTML = `<div class="tooltip">${seatNumber}</div>`;
+                } else {
+                    seat.classList.add('selected');
+                    seat.style.borderRadius = '50%';
+                    seat.style.border = '2px solid #99ff99';
+                    seat.style.backgroundColor = '#ededed';
+                    const row = seat.dataset.row;
+                    const seatNumber = seat.dataset.seat;
+                    seat.innerHTML = `<div class="tooltip">${row} ряд, ${seatNumber} место</div>`;
+                }
             });
         });
     });
-    </script>
+</script>
 </body>
 </html>
 

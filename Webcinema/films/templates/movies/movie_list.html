@@ -2,36 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Movie List</title>
+    <title>Афиша — кинотеатра</title>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     <style>
-        .movie-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-        }
+     body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
 
-        .movie {
-            width: 30%;
-            margin: 10px;
+     .top-container {
+            background-color: #a6caf0;
+            color: white;
             padding: 10px;
-            border: 1px solid #ccc;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .movie img {
-            max-width: 100%;
-            height: auto;
+        .top-container img {
+         margin-left: 30px;
+     }
+
+     .contact-info {
+            font-size: 16px;
+            margin-left: 20px;
         }
 
-        .movie a {
-         text-decoration: none;
-}
+    h1 {
+        margin: 0;
+    }
+
+    .button-container {
+        display: flex;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .button {
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        text-decoration: none;
+        margin-left: 20px;
+        transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+        background-color: #0056b3;
+    }
+
+    .login-button {
+        background-color: yellow;
+        color: black;
+        border-radius: 20px;
+        padding: 10px 20px;
+        text-decoration: none;
+        margin-left: 1570px;
+        transition: background-color 0.3s ease;
+    }
+
+    .login-button:hover {
+        background-color: #e5e500;
+    }
+
+    .movie-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    .movie {
+        width: 30%;
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: center;
+        background-color: #fff;
+    }
+
+    .movie img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .movie a {
+        text-decoration: none;
+    }
     </style>
 </head>
 <body>
-    <h1>Кинотеатр</h1>
+    <div class="top-container">
+        <a href="{% url 'movie_list' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Кинотеатр Лого">
+        </a>
+         <div class="contact-info">
+            <p><strong>Новосибирск</strong></p>
+            <p>ул.Красный проспект 72</p>
+            <p>+7(999) 999-99-99</p>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <a href="{% url 'afisha' %}" class="button">Афиша</a>
+        <a href="{% url 'screenings' %}" class="button">Сеансы</a>
+        <a href="{% url 'login' %}" class="button login-button">Войти</a>
+    </div>
+
     <div class="movie-container">
         {% for movie in movie_list %}
             <div class="movie">
@@ -42,6 +121,6 @@
             </div>
         {% endfor %}
     </div>
+
 </body>
 </html>
-

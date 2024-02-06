@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+<style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: linear-gradient(to top, #dfddff 0%, #b7f3ff 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .login-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <form method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        <label for="id_email">Email:</label>
+        <input type="email" name="email" id="id_email" required>
+
+        <label for="id_username">Имя пользователя:</label>
+        <input type="text" name="username" id="id_username" required>
+
+        <label for="id_password1">Пароль:</label>
+        <input type="password" name="password1" id="id_password1" required>
+
+        <label for="id_password2">Подтверждение пароля:</label>
+        <input type="password" name="password2" id="id_password2" required>
+
+        <button type="submit">Зарегестрироваться</button>
+    </form>
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            {% for field, errors in form.errors.items %}
+                <strong>{{ field }}:</strong>
+                {% for error in errors %} {{ error }}{% endfor %}
+                <br>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="login-link">
+        У вас уже есть учетная запись? <a href="{% url 'login' %}">Войдите здесь.</a>.
+    </div>
+</body>
+</html>
