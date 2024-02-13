@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic import ListView, DetailView
-from .models import Movie, Room, Screening
+from .models import Movie, Room, Screening, Reservation
 from django.utils import timezone
 from django.db.models import Count
 from django.contrib.auth.forms import UserCreationForm
@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.views import LoginView as AuthLoginView
+from .forms import ReservationForm
 
 
 class MovieListView(ListView):
@@ -115,4 +116,29 @@ class CustomLoginView(AuthLoginView):
 
 
 custom_login_view = CustomLoginView.as_view()
+
+
+def book_seats(request):
+    if request.method == 'POST':
+        form = ReservationForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            phone = form.cleaned_data['phone']
+            selected_seats = form.cleaned_data['selected_seats']
+
+            # Создание объекта Reservation и сохранение его в базе данных
+            reservation = Reservation.objects.create(
+                user=request.user,  # Пользователь, сделавший бронь
+                seat_number=selected_seats,
+                reservation_date=timezone.now(),
+                # Здесь вы также должны указать объект Screening, к которому относится бронирование
+                # Например: screening=screening_object
+            )
+            # Здесь вы также можете добавить логику отправки подтверждения бронирования на электронную почту или SMS
+
+            return redirect('success_page')  # Перенаправление на страницу успешного бронирования
+    else:
+        form = ReservationForm()
+
+    return render(request, 'seat_map.html', {'form': form})
 

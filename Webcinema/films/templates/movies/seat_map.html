@@ -5,7 +5,7 @@
     <title>Карта зала — {{ movie.title }}</title>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
-    <style>
+ <style>
         body {
             text-align: center;
             background-color: #ccc;
@@ -71,43 +71,106 @@
         .seat:hover .tooltip {
             visibility: visible;
         }
-         .reset-button {
-        background-color: #bbbbbb;
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        border-radius: 12px;
-        transition: background-color 0.3s;
-    }
 
-    .reset-button:hover {
-        background-color: #df2f26;
-    }
-    </style>
-</head>
-<body>
-    <style>
+        .reset-button {
+            background-color: #bbbbbb;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .reset-button:hover {
+            background-color: #df2f26;
+        }
+
         .seat {
-            background-color: #99ff99; /* начальный цвет */
+            background-color: #99ff99;
             border: none;
             cursor: pointer;
-            border-radius: 10px; /* закругления */
+            border-radius: 10px;
             margin: 5px;
             padding: 10px;
             font-size: 16px;
         }
 
         .seat.selected {
-            background-color: #808080; /* измененный цвет */
+            background-color: #808080;
+        }
+
+        .special-seat {
+            background-color: #8b00ff;
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .special-seat:hover {
+            background-color: #8b00ff;
+        }
+
+        .special-seat:hover .tooltip {
+            visibility: visible;
+        }
+
+        .special-seat.selected:hover {
+            background-color: #808080;
+        }
+
+        .special-seat.selected:hover .tooltip {
+            visibility: visible;
+        }
+        .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 10px;
+        }
+
+    /* Закрыть кнопку (х) */
+        .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
         }
     </style>
-  <div class="seat-map-container">
+</head>
+<body>
+<div class="seat-map-container">
     <h1>Мероприятие: {{ movie.title }}</h1>
     {% if no_screening %}
         <p>Извините, в ближайшее время показов этого фильма не будет.</p>
@@ -122,9 +185,15 @@
                 <div class="row">
                     <div class="row-number">{{ row|add:1 }}</div>
                     {% for seat in seats %}
-                        <div class="seat" data-row="{{ row|add:1 }}" data-seat="{{ seat|add:1 }}" data-price="{{ seat_price }}">
-                            <div class="tooltip">{{ row|add:1 }} ряд, {{ seat|add:1 }} место</div>
-                        </div>
+                        {% if row|add:1 >= 7 %}
+                            <div class="seat special-seat" data-row="{{ row|add:1 }}" data-seat="{{ seat|add:1 }}" data-price="{{ seat_price }}">
+                                <div class="tooltip">{{ row|add:1 }} ряд, {{ seat|add:1 }} место</div>
+                            </div>
+                        {% else %}
+                            <div class="seat" data-row="{{ row|add:1 }}" data-seat="{{ seat|add:1 }}" data-price="{{ seat_price }}">
+                                <div class="tooltip">{{ row|add:1 }} ряд, {{ seat|add:1 }} место</div>
+                            </div>
+                        {% endif %}
                     {% endfor %}
                     <div class="row-divider"></div>
                     <div class="end-row-number">{{ row|add:1 }}</div>
@@ -134,60 +203,123 @@
         <button id="reset-button" class="reset-button">Места не выбраны</button>
     {% endif %}
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const seats = document.querySelectorAll('.seat');
+<div id="purchaseModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Покупка билета</h2>
+    <p>Введите свою почту и номер телефона:</p>
+    <form id="purchaseForm">
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="tel" id="phone" placeholder="Номер телефона" required>
+      <button>Продолжить</button>
+    </form>
+  </div>
+</div>
 
-        seats.forEach(function(seat) {
-            seat.addEventListener('mouseenter', function () {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const seats = document.querySelectorAll('.seat');
+    const resetButton = document.getElementById('reset-button');
+    const purchaseButton = document.getElementById('purchase-button');
+    const continueButton = document.getElementById('continue-button');
+    const ticketPriceRegular = 250;
+    const ticketPriceSpecial = 350;
+    const modal = document.getElementById('purchaseModal');
+    const closeBtn = document.querySelector('.close');
+
+    modal.style.display = 'none';
+
+    function updateResetButton() {
+        const selectedSeats = document.querySelectorAll('.seat.selected');
+        let totalPrice = 0;
+        selectedSeats.forEach(function(seat) {
+            const row = parseInt(seat.dataset.row);
+            if (row === 7 || row === 8) {
+                totalPrice += ticketPriceSpecial;
+            } else {
+                totalPrice += ticketPriceRegular;
+            }
+        });
+
+        if (selectedSeats.length === 0) {
+            resetButton.textContent = 'Места не выбраны';
+            resetButton.style.backgroundColor = '#bbbbbb';
+            resetButton.disabled = true;
+        } else {
+            resetButton.textContent = `Купить (${selectedSeats.length} место за ${totalPrice}р)`;
+            resetButton.style.backgroundColor = '#df2f26';
+            resetButton.disabled = false;
+        }
+    }
+
+    seats.forEach(function(seat) {
+        seat.addEventListener('mouseenter', function () {
+            const row = seat.dataset.row;
+            const seatNumber = seat.dataset.seat;
+            if (!seat.classList.contains('selected')) {
+                seat.style.borderRadius = '50%';
+                seat.style.backgroundColor = '#df2f26';
+                seat.innerHTML = `<div class="tooltip">${row} ряд, ${seatNumber} место</div>`;
+            } else {
+                seat.innerHTML = `<div class="tooltip">${row} ряд, ${seatNumber} место</div>`;
+            }
+        });
+
+        seat.addEventListener('mouseleave', function () {
+            if (!seat.classList.contains('selected')) {
+                const seatNumber = seat.dataset.seat;
+                seat.style.borderRadius = '10px';
+                seat.style.backgroundColor = '';
+                seat.innerHTML = `<div class="tooltip">${seatNumber}</div>`;
+            }
+        });
+
+        seat.addEventListener('click', function () {
+            if (seat.classList.contains('selected')) {
+                seat.classList.remove('selected');
+                seat.style.border = 'none';
+                seat.style.backgroundColor = '';
+                const seatNumber = seat.dataset.seat;
+                seat.innerHTML = `<div class="tooltip">${seatNumber}</div>`;
+                updateResetButton();
+            } else {
+                seat.classList.add('selected');
+                seat.style.borderRadius = '50%';
+                seat.style.border = '2px solid #8b00ff';
+                seat.style.backgroundColor = '#ededed';
                 const row = seat.dataset.row;
                 const seatNumber = seat.dataset.seat;
-                if (!seat.classList.contains('selected')) {
-                    seat.style.borderRadius = '50%';
-                    seat.style.backgroundColor = '#99ff99';
-                    seat.innerHTML = `<div class="tooltip">${row} ряд, ${seatNumber} место</div>`;
-                } else {
-                    seat.innerHTML = `<div class="tooltip">${row} ряд, ${seatNumber} место</div>`;
-                }
-            });
-
-            seat.addEventListener('mouseleave', function () {
-                if (!seat.classList.contains('selected')) {
-                    const seatNumber = seat.dataset.seat;
-                    seat.style.borderRadius = '10px';
-                    seat.style.backgroundColor = '';
-                    seat.innerHTML = `<div class="tooltip">${seatNumber}</div>`;
-                }
-            });
-
-            seat.addEventListener('click', function () {
-                if (seat.classList.contains('selected')) {
-                    seat.classList.remove('selected');
-                    seat.style.border = 'none';
-                    seat.style.backgroundColor = '';
-                    const seatNumber = seat.dataset.seat;
-                    seat.innerHTML = `<div class="tooltip">${seatNumber}</div>`;
-                } else {
-                    seat.classList.add('selected');
-                    seat.style.borderRadius = '50%';
-                    seat.style.border = '2px solid #99ff99';
-                    seat.style.backgroundColor = '#ededed';
-                    const row = seat.dataset.row;
-                    const seatNumber = seat.dataset.seat;
-                    seat.innerHTML = `<div class="tooltip">${row} ряд, ${seatNumber} место</div>`;
-                }
-            });
+                seat.innerHTML = `<div class="tooltip">${row} ряд, ${seatNumber} место</div>`;
+                updateResetButton();
+            }
         });
     });
+
+    resetButton.addEventListener('click', function () {
+        const selectedSeats = document.querySelectorAll('.seat.selected');
+        if (selectedSeats.length > 0) {
+            modal.style.display = 'block';
+        } else {
+            alert('Выберите места перед покупкой билетов!');
+        }
+    });
+
+    continueButton.addEventListener('click', function (event) {
+        modal.style.display = 'none';
+        const selectedSeats = document.querySelectorAll('.seat.selected');
+        selectedSeats.forEach(function(seat) {
+            seat.style.display = 'none'; // Прячем выбранные места
+        });
+        updateResetButton(); // Обновляем состояние кнопки сброса
+        event.preventDefault();
+    });
+
+    closeBtn.addEventListener('click', function () {
+        modal.style.display = 'none';
+    });
+
+});
+
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
