@@ -227,7 +227,6 @@
       <input type="email" id="email" placeholder="Email" required>
       <input type="tel" id="phone" placeholder="Номер телефона" required>
       <button id="continue-button" type="submit">Продолжить</button>
-      <button id="buy-button" type="button">Купить</button>
     </form>
   </div>
 </div>
@@ -341,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const selectedSeat = document.getElementById('selected-seat').value;
     const email = document.getElementById('email').value;
     const phone = document.getElementById('phone').value;
-    window.location.href = `{% url 'booking_page' %}?screening=${selectedScreening}&seat=${selectedSeat}&email=${email}&phone=${phone}`;
+    window.location.href = `/payment/?selected_screening=${selectedScreening}&selected_seat=${selectedSeat}&email=${email}&phone=${phone}`;
 });
 });
 </script>

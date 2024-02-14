@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.views import LoginView as AuthLoginView
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.http import HttpResponseRedirect
 
 
 class MovieListView(ListView):
@@ -138,19 +139,21 @@ def save_reservation(request):
     return JsonResponse({'success': True})
 
 
-def booking_page(request):
-    # Получение параметров из запроса
-    screening_id = request.GET.get('screening')
-    seat_number = request.GET.get('seat')
-    email = request.GET.get('email')
-    phone = request.GET.get('phone')
+def payment_page(request):
+    return render(request, 'payment_page.html')
 
-    # Здесь можно выполнить дополнительную логику, например, проверку параметров и запрос к базе данных
-    # Передача данных в шаблон
-    context = {
-        'screening_id': screening_id,
-        'seat_number': seat_number,
-        'email': email,
-        'phone': phone,
-    }
-    return render(request, 'booking_page.html', context)
+
+def process_payment(request):
+    if request.method == 'POST':
+        card_number = request.POST.get('cardNumber')
+        expiry_date = request.POST.get('expiryDate')
+        cvv = request.POST.get('cvv')
+        return HttpResponseRedirect(reverse('payment_success'))
+    else:
+
+        return HttpResponseRedirect(reverse('payment_page'))
+
+
+def payment_success(request):
+
+    return render(request, 'payment_success.html')
