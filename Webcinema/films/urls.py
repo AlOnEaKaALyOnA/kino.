@@ -13,4 +13,5 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='movies/login.html'), name='login'),
     path('register/', register, name='register'),
     path('custom_login/', custom_login_view, name='custom_login'),
+    path('booking/', views.booking_page, name='booking_page'),
 ]

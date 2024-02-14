@@ -20,6 +20,12 @@
         h1 {
             text-align: center;
         }
+        .top-container {
+            background-color: #a6caf0;
+            color: white;
+            padding: 10px;
+
+        }
 
         .seat-map-container {
             background-color: #fff;
@@ -33,6 +39,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            display: flex;
+            justify-content: space-between;
         }
 
         .row {
@@ -170,6 +178,10 @@
     </style>
 </head>
 <body>
+<div class="top-container">
+        <a href="{% url 'movie_list' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Кинотеатр Лого">
+        </a>
 <div class="seat-map-container">
     <h1>Мероприятие: {{ movie.title }}</h1>
     {% if no_screening %}
@@ -203,29 +215,33 @@
         <button id="reset-button" class="reset-button">Места не выбраны</button>
     {% endif %}
 </div>
+</div>
 <div id="purchaseModal" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
     <h2>Покупка билета</h2>
     <p>Введите свою почту и номер телефона:</p>
     <form id="purchaseForm">
+      <input type="hidden" id="selected-screening" name="selected_screening" value="{{ selected_screening_id }}">
+      <input type="hidden" id="selected-seat" name="selected_seat" value="{{ selected_seat_number }}">
       <input type="email" id="email" placeholder="Email" required>
       <input type="tel" id="phone" placeholder="Номер телефона" required>
-      <button>Продолжить</button>
+      <button id="continue-button" type="submit">Продолжить</button>
+      <button id="buy-button" type="button">Купить</button>
     </form>
   </div>
 </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const seats = document.querySelectorAll('.seat');
     const resetButton = document.getElementById('reset-button');
     const purchaseButton = document.getElementById('purchase-button');
-    const continueButton = document.getElementById('continue-button');
+    const continueButton = document.getElementById('purchaseForm').querySelector('button');
     const ticketPriceRegular = 250;
     const ticketPriceSpecial = 350;
     const modal = document.getElementById('purchaseModal');
     const closeBtn = document.querySelector('.close');
+    const buyButton = document.getElementById('buy-button');
 
     modal.style.display = 'none';
 
@@ -305,21 +321,29 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     continueButton.addEventListener('click', function (event) {
-        modal.style.display = 'none';
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
         const selectedSeats = document.querySelectorAll('.seat.selected');
         selectedSeats.forEach(function(seat) {
             seat.style.display = 'none'; // Прячем выбранные места
         });
         updateResetButton(); // Обновляем состояние кнопки сброса
         event.preventDefault();
+        modal.style.display = 'none';
     });
 
     closeBtn.addEventListener('click', function () {
         modal.style.display = 'none';
     });
-
+    buyButton.addEventListener('click', function() {
+    const selectedScreening = document.getElementById('selected-screening').value;
+    const selectedSeat = document.getElementById('selected-seat').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    window.location.href = `{% url 'booking_page' %}?screening=${selectedScreening}&seat=${selectedSeat}&email=${email}&phone=${phone}`;
 });
-
+});
 </script>
 </body>
 </html>

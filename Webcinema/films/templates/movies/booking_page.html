@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница бронирования</title>
+    <style>
+        /* Ваши стили для страницы бронирования */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #df2f26;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #c6241a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Страница бронирования</h1>
+        <form id="bookingForm">
+            <input type="hidden" id="screening" name="screening" value="{{ screening }}">
+            <input type="hidden" id="seat" name="seat" value="{{ seat }}">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Введите ваш email" required>
+            <label for="phone">Номер телефона:</label>
+            <input type="tel" id="phone" name="phone" placeholder="Введите ваш номер телефона" required>
+            <button id="confirmBooking">Подтвердить бронирование</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmBookingButton = document.getElementById('confirmBooking');
+
+            confirmBookingButton.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                // Получение данных из формы
+                const screening = document.getElementById('screening').value;
+                const seat = document.getElementById('seat').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+
+                // Отправка данных на сервер для обработки бронирования
+                // Здесь можно использовать AJAX запрос или другой метод
+                // Например:
+                // fetch('/save_reservation', {
+                //     method: 'POST',
+                //     body: JSON.stringify({ screening, seat, email, phone }),
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     }
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //     if (data.success) {
+                //         alert('Бронирование успешно сохранено!');
+                //     } else {
+                //         alert('Ошибка при сохранении бронирования!');
+                //     }
+                // })
+                // .catch(error => {
+                //     console.error('Ошибка:', error);
+                // });
+
+                // Для примера, просто выведем данные в консоль
+                console.log('Бронирование:');
+                console.log('Сеанс:', screening);
+                console.log('Место:', seat);
+                console.log('Email:', email);
+                console.log('Номер телефона:', phone);
+
+                // Здесь можно также добавить редирект на другую страницу с сообщением об успешном бронировании
+            });
+        });
+    </script>
+</body>
+</html>

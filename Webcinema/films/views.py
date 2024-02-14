@@ -10,7 +10,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.views import LoginView as AuthLoginView
-from .forms import ReservationForm
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 
 
 class MovieListView(ListView):
@@ -118,27 +119,38 @@ class CustomLoginView(AuthLoginView):
 custom_login_view = CustomLoginView.as_view()
 
 
-def book_seats(request):
-    if request.method == 'POST':
-        form = ReservationForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            phone = form.cleaned_data['phone']
-            selected_seats = form.cleaned_data['selected_seats']
+@require_POST
+def save_reservation(request):
+    email = request.POST.get('email')
+    phone = request.POST.get('phone')
+    screening_id = request.POST.get('selected_screening')
+    seat_number = request.POST.get('selected_seat')
+    screening = Screening.objects.get(pk=screening_id)
+    reservation = Reservation.objects.create(
+        user=request.user,
+        screening=screening,
+        seat_number=seat_number,
+        reservation_date=timezone.now(),
+        email=email,
+        phone=phone
+    )
 
-            # Создание объекта Reservation и сохранение его в базе данных
-            reservation = Reservation.objects.create(
-                user=request.user,  # Пользователь, сделавший бронь
-                seat_number=selected_seats,
-                reservation_date=timezone.now(),
-                # Здесь вы также должны указать объект Screening, к которому относится бронирование
-                # Например: screening=screening_object
-            )
-            # Здесь вы также можете добавить логику отправки подтверждения бронирования на электронную почту или SMS
+    return JsonResponse({'success': True})
 
-            return redirect('success_page')  # Перенаправление на страницу успешного бронирования
-    else:
-        form = ReservationForm()
 
-    return render(request, 'seat_map.html', {'form': form})
+def booking_page(request):
+    # Получение параметров из запроса
+    screening_id = request.GET.get('screening')
+    seat_number = request.GET.get('seat')
+    email = request.GET.get('email')
+    phone = request.GET.get('phone')
 
+    # Здесь можно выполнить дополнительную логику, например, проверку параметров и запрос к базе данных
+    # Передача данных в шаблон
+    context = {
+        'screening_id': screening_id,
+        'seat_number': seat_number,
+        'email': email,
+        'phone': phone,
+    }
+    return render(request, 'booking_page.html', context)
