@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль пользователя</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .profile-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-header h1 {
+            margin: 0;
+        }
+
+        .profile-header a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .booking-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .booking-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .booking-item h2 {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1>Профиль пользователя</h1>
+            <a href="{% url 'movie_list' %}">Главная</a>
+        </div>
+        <h2>Мои бронирования</h2>
+        <ul class="booking-list">
+            {% for booking in bookings %}
+                <li class="booking-item">
+                    <h2>{{ booking.movie.title }}</h2>
+                    <p>Дата: {{ booking.screening.start_time|date:"F j, Y" }}</p>
+                    <p>Время: {{ booking.screening.start_time|time:"H:i" }}</p>
+                    <p>Ряд: {{ booking.row }}, Место: {{ booking.seat }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

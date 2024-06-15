@@ -13,6 +13,8 @@ from django.contrib.auth.views import LoginView as AuthLoginView
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from .models import Reservation
 
 
 class MovieListView(ListView):
@@ -157,3 +159,10 @@ def process_payment(request):
 def payment_success(request):
 
     return render(request, 'payment_success.html')
+
+
+@login_required
+def profile(request):
+    user = request.user
+    reservations = Reservation.objects.filter(user=user)
+    return render(request, 'profile.html', {'reservations': reservations})

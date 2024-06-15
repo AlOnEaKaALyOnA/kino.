@@ -6,36 +6,51 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     <style>
-     body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f5f5f5;
-        margin: 0;
-        padding: 0;
-    }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
 
-     .top-container {
+        }
+
+        .top-container {
             background-color: #a6caf0;
             color: white;
             padding: 10px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
         .top-container img {
-         margin-left: 30px;
-     }
+            margin-left: 30px;
+        }
 
-     .contact-info {
-            font-size: 16px;
+        .contact-info {
+            font-size: 20px;
             margin-left: 20px;
         }
 
-    h1 {
-        margin: 0;
-        margin-top: 30px;
-    }
+        .profile-icon {
+            margin-right: 30px;
+        }
 
-    .button-container {
+        .profile-icon img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+      h1 {
+            font-size: 48px;
+            text-align: center;
+            color: #333;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+       .button-container {
         display: flex;
         margin-top: 20px;
         margin-bottom: 20px;
@@ -44,11 +59,12 @@
     .button {
         background-color: #007bff;
         color: white;
-        padding: 10px 20px;
+        padding: 12px 24px;
         border-radius: 20px;
         text-decoration: none;
         margin-left: 20px;
         transition: background-color 0.3s ease;
+        font-size: 18px;
     }
 
     .button:hover {
@@ -59,39 +75,42 @@
         background-color: yellow;
         color: black;
         border-radius: 20px;
-        padding: 10px 20px;
+        padding: 12px 24px;
         text-decoration: none;
-        margin-left: 1570px;
+
         transition: background-color 0.3s ease;
+        font-size: 18px;
     }
 
     .login-button:hover {
         background-color: #e5e500;
     }
 
-    .movie-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-    }
 
-    .movie {
-        width: 30%;
-        margin: 10px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        text-align: center;
-        background-color: #fff;
-    }
 
-    .movie img {
-        max-width: 100%;
-        height: auto;
-    }
+        .movie-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
 
-    .movie a {
-        text-decoration: none;
-    }
+        .movie {
+            width: 30%;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+            background-color: #fff;
+        }
+
+        .movie img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .movie a {
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -107,22 +126,19 @@
         </div>
     </div>
 
-    <div class="button-container">
-        <a href="{% url 'afisha' %}" class="button">Афиша</a>
-        <a href="{% url 'screenings' %}" class="button">Сеансы</a>
-        <a href="{% url 'login' %}" class="button login-button">Войти</a>
-    </div>
+   <div class="button-container">
+    <a href="{% url 'afisha' %}" class="button">Афиша</a>
+    <a href="{% url 'screenings' %}" class="button">Сеансы</a>
+    <a href="{% url 'login' %}" class="button login-button">Войти</a>
+</div>
 
-    <div class="movie-container">
-        {% for movie in movie_list %}
-            <div class="movie">
-                <a href="{% url 'movie_detail' movie_id=movie.pk %}">
-                    <img src="{{ movie.poster.url }}" alt="{{ movie.title }} Poster">
-                    <h2>{{ movie.title }}</h2>
-                </a>
-            </div>
-        {% endfor %}
-    </div>
-
-</body>
-</html>
+<div class="movie-container">
+    {% for movie in movie_list %}
+        <div class="movie">
+            <a href="{% url 'movie_detail' movie_id=movie.pk %}">
+                <img src="{{ movie.poster.url }}" alt="{{ movie.title }} Poster">
+                <h2>{{ movie.title }}</h2>
+            </a>
+        </div>
+    {% endfor %}
+</div>
