@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Авторизация</title>
-<style>
+    {% load static %}
+    <style>
         body {
             font-family: 'Roboto', sans-serif;
             background-image: linear-gradient(to top, #dfddff 0%, #b7f3ff 100%);
@@ -14,7 +15,6 @@
             align-items: center;
             height: 100vh;
         }
-
         form {
             background-color: #fff;
             padding: 20px;
@@ -22,19 +22,16 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
-
         label {
             display: block;
             margin-bottom: 10px;
         }
-
         input {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
             box-sizing: border-box;
         }
-
         button {
             background-color: #007bff;
             color: #fff;
@@ -44,16 +41,13 @@
             cursor: pointer;
             width: 100%;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
         .signup-link {
             text-align: center;
             margin-top: 15px;
         }
-
         .signup-link a {
             color: #007bff;
             text-decoration: none;
@@ -61,18 +55,20 @@
     </style>
 </head>
 <body>
+    <a href="{% url 'movie_list' %}">
+        <img src="{% static 'images/logo.png' %}" alt="Кинотеатр Лого">
+    </a>
 
     <form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <input type="hidden" name="next" value="{{ next }}">
-    <label for="id_email">Email:</label>
-    <input type="email" name="email" id="id_email" required>
+        {% csrf_token %}
+        <label for="id_username">Имя пользователя:</label>
+        <input type="text" name="username" id="id_username" required>
 
-    <label for="id_password">Пароль:</label>
-    <input type="password" name="password" id="id_password" required>
+        <label for="id_password">Пароль:</label>
+        <input type="password" name="password" id="id_password" required>
 
-    <button type="submit">Войти</button>
-</form>
+        <button type="submit">Войти</button>
+    </form>
 
     <div class="signup-link">
         У вас нет учетной записи? <a href="{% url 'register' %}">Зарегистрируйтесь здесь</a>.

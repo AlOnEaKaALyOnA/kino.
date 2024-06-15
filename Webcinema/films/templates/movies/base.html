@@ -2,65 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Your Website{% endblock %}</title>
-    <style>
-        header {
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            text-align: center;
-        }
-
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        nav ul li {
-            display: inline;
-            margin-right: 10px;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .widget {
-            background-color: #555;
-            color: white;
-            padding: 10px;
-            text-align: center;
-        }
-
-        .site-header {
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            text-align: center;
-        }
-    </style>
+    <title>{% block title %}My Site{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <header>
-        <h1>My Movie Website</h1>
-        <nav>
+    {% block content %}
+    {% endblock %}
+
+    <div class="messages">
+        {% if messages %}
             <ul>
-                <li><a href="{% url 'movie_list' %}">Movies</a></li>
+                {% for message in messages %}
+                    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
             </ul>
-        </nav>
-    </header>
-    <div class="widget">
-        <p>Афиша | Сеансы</p>
+        {% endif %}
     </div>
-    <div class="site-header">
-        <h1>Your Movie Theater</h1>
-    </div>
-    <main>
-        {% block content %}{% endblock %}
-    </main>
 </body>
 </html>
+
 
 

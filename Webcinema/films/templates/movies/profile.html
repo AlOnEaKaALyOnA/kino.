@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <title>Профиль пользователя</title>
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
+            background-image: linear-gradient(to top, #dfddff 0%, #b7f3ff 100%);
             margin: 0;
             padding: 0;
             display: flex;
@@ -16,67 +15,69 @@
             align-items: center;
             height: 100vh;
         }
-
         .profile-container {
             background-color: #fff;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 800px;
-        }
-
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .profile-header h1 {
-            margin: 0;
-        }
-
-        .profile-header a {
-            text-decoration: none;
-            color: #007bff;
-        }
-
-        .booking-list {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .booking-item {
-            background-color: #f9f9f9;
-            padding: 10px;
-            border: 1px solid #ddd;
             border-radius: 5px;
-            margin-bottom: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
         }
-
-        .booking-item h2 {
-            margin: 0;
+        .profile-container h2 {
+            margin-top: 0;
+            font-size: 24px; /* Увеличение размера шрифта заголовка */
+            color: #007bff; /* Цвет заголовка */
+        }
+        .profile-container p {
+            margin: 10px 0;
+            font-size: 16px; /* Увеличение размера шрифта текста */
+        }
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень вокруг изображения */
+        }
+        .logout-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 16px; /* Увеличение размера шрифта кнопки */
+        }
+        .logout-button:hover {
+            background-color: #0056b3;
+        }
+        .logo-container {
+            text-align: center;
+            margin-top: 20px; /* Отступ сверху от контейнера профиля */
+        }
+        .logo-container img {
+            width: 100px; /* Размеры логотипа */
+            height: auto;
         }
     </style>
 </head>
 <body>
+    <a href="{% url 'movie_list' %}">
+        <img src="{% static 'images/logo.png' %}" alt="Кинотеатр Лого">
+    </a>
+
     <div class="profile-container">
-        <div class="profile-header">
-            <h1>Профиль пользователя</h1>
-            <a href="{% url 'movie_list' %}">Главная</a>
-        </div>
-        <h2>Мои бронирования</h2>
-        <ul class="booking-list">
-            {% for booking in bookings %}
-                <li class="booking-item">
-                    <h2>{{ booking.movie.title }}</h2>
-                    <p>Дата: {{ booking.screening.start_time|date:"F j, Y" }}</p>
-                    <p>Время: {{ booking.screening.start_time|time:"H:i" }}</p>
-                    <p>Ряд: {{ booking.row }}, Место: {{ booking.seat }}</p>
-                </li>
-            {% endfor %}
-        </ul>
+        <h2>Профиль пользователя</h2>
+        <img src="{% static 'images/default_profile.jpg' %}" alt="Фото профиля" class="profile-image">
+        <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-button">Выйти</button>
+        </form>
     </div>
 </body>
 </html>

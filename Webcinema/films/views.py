@@ -1,3 +1,4 @@
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import View
@@ -9,7 +10,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from django.contrib.auth.views import LoginView as AuthLoginView
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
@@ -21,6 +21,21 @@ class MovieListView(ListView):
     model = Movie
     template_name = 'movies/movie_list.html'
     context_object_name = 'movie_list'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(title__icontains=query)
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        if self.object_list.count() == 1:
+            movie = self.object_list.first()
+            return redirect('movie_detail', movie_id=movie.pk)
+        context = self.get_context_data()
+        return self.render_to_response(context)
 
 
 class MovieDetailView(DetailView):
@@ -89,37 +104,30 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'movies/register.html', {'form': form})
 
-
 def custom_login_view(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, request.POST)
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('success_page')
+                return redirect('movie_list')
             else:
-                return render(request, 'login.html', {'form': form, 'error': 'Неверные учетные данные для входа в систему'})
+                messages.error(request, 'Неверные учетные данные для входа в систему')
     else:
         form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'movies/login.html', {'form': form})
 
+class CustomLoginView(LoginView):
+    template_name = 'movies/login.html'
 
-class CustomLoginView(AuthLoginView):
     def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, 'Вы успешно вошли в систему.')
-        return response
+        return super().form_valid(form)
 
     def form_invalid(self, form):
-        response = super().form_invalid(form)
-        messages.error(self.request, 'Неверный адрес электронной почты или пароль. Пожалуйста, попробуйте снова.')
-        return response
-
-
-custom_login_view = CustomLoginView.as_view()
+        return super().form_invalid(form)
 
 
 @require_POST
@@ -162,7 +170,9 @@ def payment_success(request):
 
 
 @login_required
-def profile(request):
-    user = request.user
-    reservations = Reservation.objects.filter(user=user)
-    return render(request, 'profile.html', {'reservations': reservations})
+def profile_view(request):
+    return render(request, 'movies/profile.html', {'user': request.user})
+
+
+
+

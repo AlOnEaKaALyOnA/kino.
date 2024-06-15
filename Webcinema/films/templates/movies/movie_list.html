@@ -7,50 +7,49 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
 
-        }
+    .top-container {
+        background-color: #a6caf0;
+        color: white;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-        .top-container {
-            background-color: #a6caf0;
-            color: white;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .top-container img {
+        margin-left: 30px;
+    }
 
-        .top-container img {
-            margin-left: 30px;
-        }
+    .contact-info {
+        font-size: 20px;
+        margin-left: 20px;
+    }
 
-        .contact-info {
-            font-size: 20px;
-            margin-left: 20px;
-        }
+    .profile-icon {
+        margin-right: 30px;
+    }
 
-        .profile-icon {
-            margin-right: 30px;
-        }
+    .profile-icon img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
 
-        .profile-icon img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
+    h1 {
+        font-size: 48px;
+        text-align: center;
+        color: #333;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
 
-      h1 {
-            font-size: 48px;
-            text-align: center;
-            color: #333;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-       .button-container {
+    .button-container {
         display: flex;
         margin-top: 20px;
         margin-bottom: 20px;
@@ -63,12 +62,13 @@
         border-radius: 20px;
         text-decoration: none;
         margin-left: 20px;
-        transition: background-color 0.3s ease;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
         font-size: 18px;
     }
 
     .button:hover {
         background-color: #0056b3;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     }
 
     .login-button {
@@ -77,39 +77,96 @@
         border-radius: 20px;
         padding: 12px 24px;
         text-decoration: none;
-
-        transition: background-color 0.3s ease;
+        margin-left: 20px;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
         font-size: 18px;
     }
 
     .login-button:hover {
         background-color: #e5e500;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .movie-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
+
+    .movie {
+        width: 30%;
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: center;
+        background-color: #fff;
+    }
+
+    .movie img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .movie a {
+        text-decoration: none;
     }
 
 
+    .search-container {
+        margin-left: 20px;
+        display: flex;
+        align-items: center;
+    }
 
-        .movie-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-        }
+    .search-container form {
+        display: flex;
+        align-items: center;
+        border: 2px solid #007bff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease;
+    }
 
-        .movie {
-            width: 30%;
-            margin: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: center;
-            background-color: #fff;
-        }
+    .search-container form:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
 
-        .movie img {
-            max-width: 100%;
-            height: auto;
-        }
+    .search-container input[type="text"] {
+        padding: 12px 24px;
+        border: none;
+        outline: none;
+        font-size: 18px;
+        flex: 1;
+    }
 
-        .movie a {
+    .search-container button {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .search-container button:hover {
+        background-color: #0056b3;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .profile-link {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 20px;
             text-decoration: none;
+            margin-left: 20px;
+            transition: background-color 0.3s ease;
+            font-size: 18px;
+        }
+
+    .profile-link:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -127,18 +184,42 @@
     </div>
 
    <div class="button-container">
-    <a href="{% url 'afisha' %}" class="button">Афиша</a>
-    <a href="{% url 'screenings' %}" class="button">Сеансы</a>
-    <a href="{% url 'login' %}" class="button login-button">Войти</a>
-</div>
-
-<div class="movie-container">
-    {% for movie in movie_list %}
-        <div class="movie">
-            <a href="{% url 'movie_detail' movie_id=movie.pk %}">
-                <img src="{{ movie.poster.url }}" alt="{{ movie.title }} Poster">
-                <h2>{{ movie.title }}</h2>
-            </a>
+        <a href="{% url 'afisha' %}" class="button">Афиша</a>
+        <a href="{% url 'screenings' %}" class="button">Сеансы</a>
+        {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="profile-link">Профиль</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="button login-button">Войти</a>
+            {% endif %}
+        <div class="search-container">
+            <form method="GET" action="{% url 'movie_list' %}">
+                <input type="text" name="q" placeholder="Поиск по названию фильма" value="{{ request.GET.q }}">
+                <button type="submit" class="button">Поиск</button>
+            </form>
         </div>
-    {% endfor %}
+    </div>
+
+
+    <div class="movie-container">
+        {% for movie in movie_list %}
+            <div class="movie">
+                <a href="{% url 'movie_detail' movie_id=movie.pk %}">
+                    <img src="{{ movie.poster.url }}" alt="{{ movie.title }} Poster">
+                    <h2>{{ movie.title }}</h2>
+                </a>
+            </div>
+        {% endfor %}
 </div>
+<script>
+        function handleSubmit(event) {
+            event.preventDefault();
+            const searchQuery = document.getElementById('searchInput').value.trim();
+            if (searchQuery) {
+                window.location.href = `/movie_list/?q=${encodeURIComponent(searchQuery)}`;
+            }
+        }
+        const searchForm = document.getElementById('searchForm');
+        searchForm.addEventListener('submit', handleSubmit);
+    </script>
+</body>
+</html>
