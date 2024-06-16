@@ -85,7 +85,9 @@ class Reservation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     screening = models.ForeignKey(Screening, on_delete=models.CASCADE, verbose_name="Сеанс")
     seat_number = models.CharField("Номер места", max_length=10)
-    reservation_date = models.DateTimeField("Дата бронирования")
+    reservation_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата бронирования")
+    email = models.EmailField(null=True, blank=True)
+    phone = models.CharField(max_length=15, null=True, blank=True)
 
     def __str__(self):
         return f'Reservation for {self.screening} by {self.user}'

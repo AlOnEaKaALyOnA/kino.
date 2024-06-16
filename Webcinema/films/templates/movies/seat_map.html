@@ -166,7 +166,6 @@
         border-radius: 10px;
         }
 
-    /* Закрыть кнопку (х) */
         .close {
         color: #aaa;
         float: right;
@@ -220,6 +219,7 @@
         <button id="reset-button" class="reset-button">Места не выбраны</button>
     {% endif %}
 </div>
+
 </div>
 <div id="purchaseModal" class="modal">
   <div class="modal-content">
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateResetButton() {
         const selectedSeats = document.querySelectorAll('.seat.selected');
         let totalPrice = 0;
-        selectedSeats.forEach(function(seat) {
+        selectedSeats.forEach(function (seat) {
             const row = parseInt(seat.dataset.row);
             if (row === 7 || row === 8) {
                 totalPrice += ticketPriceSpecial;
@@ -271,14 +271,19 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function saveSelectedSeats(selectedSeats) {
-        fetch('/save_selected_seats/', {
+    function saveSelectedSeats(selectedSeats, email, phone) {
+        fetch('/save_booking_to_profile/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'), // Получаем CSRF токен для защиты от CSRF атак
+                'X-CSRFToken': getCookie('csrftoken'),
             },
-            body: JSON.stringify({ selectedSeats: selectedSeats }),
+            body: JSON.stringify({
+                selected_seats: selectedSeats,
+                selected_screening: document.getElementById('selected-screening').value,
+                email: email,
+                phone: phone
+            }),
         })
         .then(response => {
             if (!response.ok) {
@@ -300,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return response.json();
         })
         .then(data => {
-            data.selectedSeats.forEach(function(seat) {
+            data.selectedSeats.forEach(function (seat) {
                 const seatElement = document.querySelector(`.seat[data-row="${seat.row}"][data-seat="${seat.seat}"]`);
                 if (seatElement) {
                     seatElement.classList.add('selected');
@@ -317,7 +322,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    seats.forEach(function(seat) {
+    function loadBookedSeats() {
+        fetch('/load_booked_seats/')
+        .then(response => response.json())
+        .then(data => {
+            const bookedSeatsContainer = document.getElementById('booked-seats-container');
+            bookedSeatsContainer.innerHTML = '';
+
+            data.bookedSeats.forEach(reservation => {
+                const seatElement = document.createElement('div');
+                seatElement.textContent = `${reservation.screening__movie_title} at ${reservation.screening__screening_time}, Seat: ${reservation.seat_number}`;
+                bookedSeatsContainer.appendChild(seatElement);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    seats.forEach(function (seat) {
         seat.addEventListener('mouseenter', function () {
             const row = seat.dataset.row;
             const seatNumber = seat.dataset.seat;
@@ -367,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     seat: seat.dataset.seat
                 };
             });
-            saveSelectedSeats(selectedSeats); // Сохраняем выбранные места на сервере Django
+            saveSelectedSeats(selectedSeats);
         });
     });
 
@@ -385,20 +408,59 @@ document.addEventListener('DOMContentLoaded', function () {
         const email = document.getElementById('email').value;
         const phone = document.getElementById('phone').value;
         const selectedSeats = document.querySelectorAll('.seat.selected');
-        selectedSeats.forEach(function(seat) {
+        const selectedSeatsArray = Array.from(selectedSeats).map(seat => {
+            return {
+                row: seat.dataset.row,
+                seat: seat.dataset.seat
+            };
+        });
+        const selectedScreening = document.getElementById('selected-screening').value;
+
+        selectedSeats.forEach(function (seat) {
             seat.classList.add('booked');
             seat.classList.remove('selected');
             seat.style.border = 'none';
             seat.style.backgroundColor = '#ff6666';
             seat.innerHTML = `<div class="tooltip">Забронировано</div>`;
         });
-        updateResetButton(); // Обновляем состояние кнопки сброса
+        updateResetButton();
         modal.style.display = 'none';
+
+        fetch('/save_booking_to_profile/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({
+                email: email,
+                phone: phone,
+                selected_seats: selectedSeatsArray,
+                selected_screening: selectedScreening
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Ваши места успешно забронированы и сохранены в профиле!');
+            } else {
+                alert('Ошибка при бронировании мест.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+
         fetch('/clear_selected_seats/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'), // Получаем CSRF токен для защиты от CSRF атак
+                'X-CSRFToken': getCookie('csrftoken'),
             },
             body: JSON.stringify({}),
         })
@@ -417,7 +479,7 @@ document.addEventListener('DOMContentLoaded', function () {
         modal.style.display = 'none';
     });
 
-    buyButton.addEventListener('click', function() {
+    buyButton.addEventListener('click', function () {
         const selectedScreening = document.getElementById('selected-screening').value;
         const selectedSeat = document.getElementById('selected-seat').value;
         const email = document.getElementById('email').value;
@@ -425,16 +487,16 @@ document.addEventListener('DOMContentLoaded', function () {
         window.location.href = `/payment/?selected_screening=${selectedScreening}&selected_seat=${selectedSeat}&email=${email}&phone=${phone}`;
     });
 
-    // Загружаем выбранные места с сервера Django при загрузке страницы
     loadSelectedSeats();
+    loadBookedSeats();  // Load booked seats when the page loads
 });
-    function getCookie(name) {
+
+function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i].trim();
-            // Проверяем, начинается ли текущая cookie с искомого имени
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
@@ -443,6 +505,46 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     return cookieValue;
 }
+
+
+document.getElementById('continueButton').addEventListener('click', function (event) {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const selectedSeats = document.querySelectorAll('.seat.selected');
+    const selectedSeatsArray = Array.from(selectedSeats).map(seat => {
+        return {
+            row: seat.dataset.row,
+            seat: seat.dataset.seat
+        };
+    });
+    const selectedScreening = document.getElementById('selected-screening').value;
+
+    fetch('/save_booking_to_profile/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            email: email,
+            phone: phone,
+            selected_seats: selectedSeatsArray,
+            selected_screening: selectedScreening
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Ваши места успешно забронированы и сохранены в профиле!');
+        } else {
+            alert('Ошибка при бронировании мест: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
 </script>
 </body>
 </html>

@@ -25,12 +25,12 @@
         }
         .profile-container h2 {
             margin-top: 0;
-            font-size: 24px; /* Увеличение размера шрифта заголовка */
-            color: #007bff; /* Цвет заголовка */
+            font-size: 24px;
+            color: #007bff;
         }
         .profile-container p {
             margin: 10px 0;
-            font-size: 16px; /* Увеличение размера шрифта текста */
+            font-size: 16px;
         }
         .profile-image {
             width: 150px;
@@ -38,7 +38,7 @@
             border-radius: 50%;
             object-fit: cover;
             margin-bottom: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень вокруг изображения */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .logout-button {
             background-color: #007bff;
@@ -49,18 +49,28 @@
             cursor: pointer;
             width: 100%;
             margin-top: 15px;
-            font-size: 16px; /* Увеличение размера шрифта кнопки */
+            font-size: 16px;
         }
         .logout-button:hover {
             background-color: #0056b3;
         }
         .logo-container {
             text-align: center;
-            margin-top: 20px; /* Отступ сверху от контейнера профиля */
+            margin-top: 20px;
         }
         .logo-container img {
-            width: 100px; /* Размеры логотипа */
+            width: 100px;
             height: auto;
+        }
+        #booked-seats-container {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .seat {
+            background-color: #ff6666;
+            margin: 5px;
+            padding: 5px;
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -73,11 +83,40 @@
         <h2>Профиль пользователя</h2>
         <img src="{% static 'images/default_profile.jpg' %}" alt="Фото профиля" class="profile-image">
         <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
             <button type="submit" class="logout-button">Выйти</button>
         </form>
+        <div id="booked-seats-container"></div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const bookedSeatsContainer = document.getElementById('booked-seats-container');
+
+            function loadBookedSeats() {
+                fetch('/load_booked_seats/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    bookedSeatsContainer.innerHTML = '';  // Clear existing seats
+                    data.bookedSeats.forEach(function(seat) {
+                        const seatElement = document.createElement('div');
+                        seatElement.classList.add('seat');
+                        seatElement.textContent = `${seat.screening__movie_title} - ${seat.seat_number} (${seat.screening__screening_time})`;
+                        bookedSeatsContainer.appendChild(seatElement);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+
+            loadBookedSeats();
+        });
+    </script>
 </body>
 </html>

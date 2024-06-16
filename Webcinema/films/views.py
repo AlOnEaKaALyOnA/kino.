@@ -14,7 +14,9 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from .models import Reservation
+from django.views.decorators.csrf import csrf_exempt
+import json
+import logging
 
 
 class MovieListView(ListView):
@@ -67,7 +69,6 @@ class SeatMapView(View):
             context = {'movie': movie, 'room': room, 'no_screening': True}
             return render(request, self.template_name, context)
 
-        # Создаем диапазоны для рядов и мест в ряду
         rows = range(room.rows)
         seats = range(room.seats_per_row)
 
@@ -81,6 +82,34 @@ class SeatMapView(View):
         }
 
         return render(request, self.template_name, context)
+
+@require_POST
+def save_reservation(request):
+    email = request.POST.get('email')
+    phone = request.POST.get('phone')
+    screening_id = request.POST.get('selected_screening')
+    seat_number = request.POST.get('selected_seat')
+    screening = get_object_or_404(Screening, pk=screening_id)
+
+    if request.user.is_authenticated:
+        reservation = Reservation.objects.create(
+            user=request.user,
+            screening=screening,
+            seat_number=seat_number,
+            reservation_date=timezone.now(),
+            email=request.user.email,
+            phone=phone
+        )
+    else:
+        reservation = Reservation.objects.create(
+            screening=screening,
+            seat_number=seat_number,
+            reservation_date=timezone.now(),
+            email=email,
+            phone=phone
+        )
+
+    return JsonResponse({'success': True})
 
 
 def afisha_view(request):
@@ -104,6 +133,7 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'movies/register.html', {'form': form})
 
+
 def custom_login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -120,6 +150,7 @@ def custom_login_view(request):
         form = AuthenticationForm()
     return render(request, 'movies/login.html', {'form': form})
 
+
 class CustomLoginView(LoginView):
     template_name = 'movies/login.html'
 
@@ -128,25 +159,6 @@ class CustomLoginView(LoginView):
 
     def form_invalid(self, form):
         return super().form_invalid(form)
-
-
-@require_POST
-def save_reservation(request):
-    email = request.POST.get('email')
-    phone = request.POST.get('phone')
-    screening_id = request.POST.get('selected_screening')
-    seat_number = request.POST.get('selected_seat')
-    screening = Screening.objects.get(pk=screening_id)
-    reservation = Reservation.objects.create(
-        user=request.user,
-        screening=screening,
-        seat_number=seat_number,
-        reservation_date=timezone.now(),
-        email=email,
-        phone=phone
-    )
-
-    return JsonResponse({'success': True})
 
 
 def payment_page(request):
@@ -174,5 +186,97 @@ def profile_view(request):
     return render(request, 'movies/profile.html', {'user': request.user})
 
 
+logger = logging.getLogger(__name__)
 
 
+@csrf_exempt
+@login_required
+def save_booking_to_profile(request):
+    if request.method == 'POST':
+        try:
+
+            logger.debug(f'Request body: {request.body}')
+
+            data = json.loads(request.body)
+            email = data.get('email')
+            phone = data.get('phone')
+            selected_seats = data.get('selected_seats', [])
+            selected_screening_id = data.get('selected_screening')
+
+            if not email or not phone or not selected_seats or not selected_screening_id:
+                logger.error('Missing required fields in request data')
+                return JsonResponse({'error': 'Все поля должны быть заполнены'}, status=400)
+            screening = Screening.objects.get(id=selected_screening_id)
+            user = request.user
+
+            for seat in selected_seats:
+                row = seat.get('row')
+                seat_number = seat.get('seat')
+                if row is None or seat_number is None:
+                    logger.error('Invalid seat data in request')
+                    return JsonResponse({'error': 'Некорректные данные для мест'}, status=400)
+
+                Reservation.objects.create(
+                    user=user,
+                    screening=screening,
+                    seat_number=f"{row}{seat_number}",
+                    email=email,
+                    phone=phone
+                )
+
+            return JsonResponse({'success': True})
+        except json.JSONDecodeError:
+            logger.error('Invalid JSON in request body')
+            return JsonResponse({'error': 'Неверный формат JSON'}, status=400)
+        except Screening.DoesNotExist:
+            logger.error('Screening not found')
+            return JsonResponse({'error': 'Screening не найден'}, status=404)
+        except Exception as e:
+            logger.error(f'Unexpected error: {e}')
+            return JsonResponse({'error': str(e)}, status=500)
+
+    logger.error('Invalid request method')
+    return JsonResponse({'error': 'Неверный метод запроса'}, status=400)
+
+
+@login_required
+def load_booked_seats(request):
+    try:
+        user = request.user
+        reservations = Reservation.objects.filter(user=user).values(
+            'screening__movie__title',
+            'screening__start_time',
+            'seat_number',
+            'reservation_date'
+        )
+        booked_seats = list(reservations)
+        return JsonResponse({'bookedSeats': booked_seats})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@csrf_exempt
+def load_selected_seats(request):
+    try:
+        user = request.user
+        reservations = Reservation.objects.filter(user=user).values('screening_id', 'seat_number')
+        selected_seats = []
+        for reservation in reservations:
+            screening_id = reservation['screening_id']
+            seat_number = reservation['seat_number']
+            row, seat = seat_number.split(' ')
+            row = row.replace('Row', '').strip()
+            seat = seat.replace('Seat', '').strip()
+            selected_seats.append({'row': row, 'seat': seat})
+        return JsonResponse({'selectedSeats': selected_seats})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+def clear_selected_seats(request):
+    if request.method == 'POST':
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'error': 'Метод не разрешен'}, status=405)
